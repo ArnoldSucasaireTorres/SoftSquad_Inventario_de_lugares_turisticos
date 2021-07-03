@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    {% for dest in destinos %}
+    <div> Region: {{dest.region}}</div>
+    <div> Provincia: {{dest.provincia}}</div>
+    <div> Distrito: {{dest.distrito}}</div>
+    <div> Codigo: {{dest.codigo}}</div>
+    <div> Nombre: {{dest.nombre}}</div>
+    <div> Categoria: {{dest.categoria}}</div>
+    <div> Tipo Categoria: {{dest.tipo_categoria}}</div>
+    <div> Subtipo Categoria: {{dest.subtipo_categoria}}</div>
+    <div> Url: {{dest.url}}</div>
+    <div> Latitud: {{dest.latitud}}</div>
+    <div> Longitud: {{dest.longitud}}</div>
+    <br>
+    {% endfor %}
+</body>
+</html>
