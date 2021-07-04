@@ -2,7 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('all', views.destinatiosView, name=""),
+    path('all', views.destinationsView, name="listDestinations"),
+    path('filtered', views.destinationsFilteredView, name="listFilteredDestinations"),
 ]
 
 

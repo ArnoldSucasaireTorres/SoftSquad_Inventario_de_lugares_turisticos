@@ -8,6 +8,24 @@
     <title>Document</title>
 </head>
 <body>
+    <h1>
+        LIST OF ALL DESTINATIONS
+    </h1>
+    <div>
+        <form action="/destinations/filtered" method="GET">
+            Filtro:
+            <select name="filter">
+                <option value="provincia">provincia</option>
+                <option value="distrito">distrito</option>
+                <option value="nombre">nombre</option>
+                <option value="categoria">categoria</option>
+                <option value="tipo_categoria">tipo_categoria</option>
+                <option value="subtipo_categoria">subtipo_categoria</option>
+            </select>
+            Nombre: <input type="text" name="value">
+            <input type="submit" value="Buscar">
+        </form>
+    </div>
     {% for dest in destinos %}
     <div> Region: {{dest.region}}</div>
     <div> Provincia: {{dest.provincia}}</div>
@@ -20,7 +38,41 @@
     <div> Url: {{dest.url}}</div>
     <div> Latitud: {{dest.latitud}}</div>
     <div> Longitud: {{dest.longitud}}</div>
+    <div>
+        <form action="/destinations/see" method="GET">
+            <input type="submit" value="Ver">
+        </form>
+    </div>
+    <div>
+        <form action="/destinations/all" method="POST">
+            {% csrf_token %}
+            ¿Ya visitaste este destino? Califícalo
+            <br>
+            <div>
+            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},1)">★</span>
+            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},2)">★</span>
+            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},3)">★</span>
+            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},4)">★</span>
+            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},5)">★</span>
+            </div>
+            <input type="text" name="codigo" value="{{dest.codigo}}" hidden>
+            <input type="number" id="puntaje{{dest.codigo}}" name="calificacion" value="0" hidden>
+            <input type="submit" value="Calificar">
+        </form>
+    </div>
     <br>
     {% endfor %}
+    <script>
+        function calificar(event, codigo , puntaje)
+        {
+            let estrellas = document.getElementsByClassName("estrella"+codigo);
+            for(let i=0 ; i<puntaje ; i++)
+                estrellas[i].style.color="yellow";
+            for(let i=4 ; i>=puntaje ; i--)
+                estrellas[i].style.color="black";
+            input_puntaje = document.getElementById("puntaje"+codigo);
+            input_puntaje.setAttribute('value', puntaje);
+        }
+    </script>
 </body>
 </html>
