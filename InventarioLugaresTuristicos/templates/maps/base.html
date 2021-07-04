@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <!--Se importan las librerias necesarias para leaflet y JQuery-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+
+<body>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <div style="width:500px; height: 300px; " id="map">
+    </div>
+    <div id="nombreprovincia"></div>
+    <div style="width:500px; height: 300px; " id="distritos"></div>
+
+    <input type="text" id="lat">
+    <input type="text" id="lon">
+    <button id="busqueda" onclick="buscar(this)">buscar</button>
+
+</body>
+
+<script>
+    var mapaDistritos;
+    function buscar(arg) {
+        var lat = document.getElementById("lat")
+        var lon = document.getElementById("lon")
+
+    }
+    //Cuando se carga el documento se ejecuta la funcion
+    $(document).ready(function () {
+        dibujarProvincias()
+    });
+    var mapa
+    var pila = [];
+    var pila1 = [];
+    listaProvincias = ['AREQUIPA', 'CAMANA', 'CARAVELI', 'CASTILLA', 'CAYLLOMA', 'CONDESUYOS', 'ISLAY', 'LA UNION']
+    var click = function (event) {
+        var nombre = event.target._popup._content;
+        var esprovincia = false;
+        for (var i = 0; i < listaProvincias.length; i++) {
+            if (nombre == listaProvincias[i]) {
+                esprovincia = true;
+                if (document.getElementById("distritos").innerHTML) {
+                    mapa.remove()
+                    break;
+                }
+            }
+        }
+        //se verifica el lugar seleccionado es provincia o distrito
+        if (esprovincia) {
+            mapa = dibujarDistritos("distritos", nombre)
+        }
+        else {
+            sitiosTuristicos(nombre)
+        }
+
+        document.getElementById("nombreprovincia").innerHTML = nombre;
+
+        if (pila.length == 0) {
+            event.target.setStyle(
+                {
+                    fillColor: 'skyblue',
+                    fillOpacity: 0.5,
+                    color: 'black',
+                    weight: 2
+                });
+            pila.push(event);
+        }
+        else if (pila[0].target._popup._content == nombre) { }
+        else if (pila[0].target._popup._content != nombre) {
+            var anterior = pila.pop();
+            anterior.target.setStyle(
+                {
+                    color: 'black',
+                    fillColor: 'skyblue',
+                    fillOpacity: 0.3,
+                    weight: 1
+                });
+            event.target.setStyle(
+                {
+                    fillColor: 'skyblue',
+                    fillOpacity: 0.5,
+                    color: 'black',
+                    weight: 2
+                });
+            pila.push(event);
+        }
+    }
+
+    var mouseover = function (event) {
+        event.target.setStyle(
+            {
+                fillColor: 'skyblue',
+                fillOpacity: 0.5,
+                color: 'black',
+                weight: 2
+            });
+        event.target.openPopup();
+    }
+
+    var mouseout = function (event) {
+        event.target.closePopup();
+        var pintado = pila[0];
+        event.target.setStyle(
+            {
+                color: 'black',
+                fillColor: 'skyblue',
+                fillOpacity: 0.3,
+                weight: 1
+            });
+        if (pila.length != 0) {
+            pintado.target.setStyle(
+                {
+                    fillColor: 'skyblue',
+                    fillOpacity: 0.5,
+                    color: 'black',
+                    weight: 2
+                });
+        }
+    }
+
+    var dibujarProvincias = function () {
+        //la variable limites contiene los limites del mapa
+        var surOeste = L.latLng(-17.474337, -75.555176),
+            norEste = L.latLng(-14.562318, -70.411377),
+            limites = L.latLngBounds(norEste, surOeste);
+        // la variable map apunta a un objeto mapa
+        var map = L.map("map",
+            //las opciones del mapa
+            {
+                'maxBounds': limites,
+                'zoomControl': false,
+                'attributionControl': false,
+                'dragging': true,
+                'doubleClickZoom': false,
+                'scrollWheelZoom': true
+            }).setView([-15.940203, -72.784424], 7); // se establecer la vista del mapa centrado
+        //se establece el tipo de capa para el mapa
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            maxZoom: 18,
+            minZoom: 7,
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+        }).addTo(map); // se añade la capa al mapa
+
+        //obtenemos los datos JSON de la vista
+        mygeojson = JSON.parse(`{{provincias}}`.replace(/&quot;/g, '"'));
+        //contiene cada la informacion de cada provincia
+        var provAQP = mygeojson.features;
+        var polygon;
+        for (var i = 0; i < provAQP.length; i++) {
+            //nombre de la provincia actual
+            var nomProvAQP = provAQP[i].properties.NOMBPROV;
+            //estilos del poligono para agregar al mapa
+            var estilos = {
+                color: 'black',
+                fillColor: 'skyblue',
+                fillOpacity: 0.3,
+                weight: 1,
+                id: i //identificacion de cada provincia
+            };
+            //se invierte cada coordenada de lnglat a latlng
+            provAQP[i].geometry.coordinates[0].forEach(e => e.reverse());
+
+            polygon = L.polygon(
+                provAQP[i].geometry.coordinates[0], //latlngs de arequipa
+                estilos).bindPopup(nomProvAQP).addTo(map);
+
+            //se añade eventos sobre el poligono
+            polygon.on('click', click);
+            polygon.on('mouseover', mouseover);
+            polygon.on('mouseout', mouseout);
+
+        }
+
+        return map;
+    }
+
+    var dibujarDistritos = function (id, nombre) {
+        //la variable limites contiene los limites del mapa
+        var surOeste = L.latLng(-17.474337, -75.555176),
+            norEste = L.latLng(-14.562318, -70.411377),
+            limites = L.latLngBounds(norEste, surOeste);
+        // la variable map apunta a un objeto mapa
+        var map = L.map(id,
+            //las opciones del mapa
+            {
+                'maxBounds': limites,
+                'zoomControl': false,
+                'attributionControl': false,
+                'dragging': true,
+                'doubleClickZoom': false,
+                'scrollWheelZoom': true
+            }).setView([-15.940203, -72.784424], 7); // se establecer la vista del mapa centrado
+        //se establece el tipo de capa para el mapa
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+        }).addTo(map); // se añade la capa al mapa
+
+        //obtenemos los datos JSON de la vista
+        mygeojson = JSON.parse(`{{distritos}}`.replace(/&quot;/g, '"'));
+        //contiene cada la informacion de cada provincia
+        var provAQP = mygeojson.features;
+        var polygon;
+        for (var i = 0; i < provAQP.length; i++) {
+            //nombre de la provincia actual
+            var nomDist = provAQP[i].properties.NOMBDIST;
+            var nomProv = provAQP[i].properties.NOMBPROV;
+            //estilos del poligono para agregar al mapa
+            var estilos = {
+                color: 'black',
+                fillColor: 'skyblue',
+                fillOpacity: 0.3,
+                weight: 1,
+                id: i //identificacion de cada provincia
+            };
+            //se invierte cada coordenada de lnglat a latlng
+            if (nomProv == nombre) {
+                provAQP[i].geometry.coordinates[0].forEach(e => e.reverse());
+                polygon = L.polygon(
+                    provAQP[i].geometry.coordinates[0], //latlngs de arequipa
+                    estilos).bindPopup(nomDist).addTo(map);
+
+                //se añade eventos sobre el poligono
+                polygon.on('click', click);
+                polygon.on('mouseover', mouseover);
+                polygon.on('mouseout', mouseout);
+            }
+
+        }
+        mapaDistritos = map;
+        return map;
+    }
+    var sitiosTuristicos = function (nombre) {
+        var ubiSitTur = mygeojson = JSON.parse(`{{turisticos}}`.replace(/&quot;/g, '"'));
+        //console.log(nombre)
+        for (var i = 0; i < ubiSitTur.length; i++) {
+            if (ubiSitTur[i].distrito == nombre) {
+                if (ubiSitTur[i].latitud != null) {
+                    if (ubiSitTur[i].longitud != null) {
+                        console.log("entro")
+                        var latlng = [ubiSitTur[i].longitud, ubiSitTur[i].latitud]
+                    }
+                }
+                console.log(ubiSitTur[i].distrito + "→ " + nombre + " " + latlng)
+                L.marker(latlng).addTo(mapaDistritos)
+                    .bindPopup(latlng + "")
+                    .openPopup();
+            }
+
+
+            //console.log(latlng)
+            //L.marker(latlng).addTo(mapaDistritos);
+        }
+    }
+</script>
+
+</html>

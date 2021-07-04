@@ -72,3 +72,15 @@ def destinationsFilteredView(request):
     else:
         data = destinosCalificados(data_json)
         return render(request, "destinations/all.html", {"destinos": data})
+
+def mapaView(request):
+    f = open("provinciasAQP.json")
+    provincias=f.read()
+    f.close()
+    f = open("distritosAQP.json")
+    distritos=f.read()
+    f.close()
+    f = open("data.json")
+    turisticos=f.read()
+    f.close()
+    return render(request,'maps/base.html',{'provincias':provincias,'distritos':distritos,'turisticos':turisticos})
