@@ -52,11 +52,9 @@
         //se verifica el lugar seleccionado es provincia o distrito
         if (esprovincia) {
             mapa = dibujarDistritos("distritos", nombre)
-            listaProvincias[0]="AREQUIPA1"
         }
         else {
             sitiosTuristicos(nombre)
-            listaProvincias[0]="AREQUIPA"
         }
 
         document.getElementById("nombreprovincia").innerHTML = nombre;
