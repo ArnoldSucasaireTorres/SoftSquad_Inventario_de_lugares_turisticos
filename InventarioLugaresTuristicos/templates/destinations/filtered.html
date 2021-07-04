@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Lista de Destinos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+    <body>
+        <div class="container col-12 justify-content-center">
+            <div class="h1 text-center p-5 ">
+                Lista de destinos
+            </div>
+            <div class="col-5">
+                <form action="/destinations/filtered" method="GET">
+                    <select name="filter" class="form-select form-select-lg mb-3" aria-label="Default select example">
+                        <option value="distrito">Distrito</option>
+                        <option value="nombre">Nombre</option>
+                        <option value="categoria">Categoria</option>
+                        <option value="tipo_categoria">Tipo</option>
+                        <option value="subtipo_categoria">Subtipo</option>
+                    </select>
+                    <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Nombre</span>
+                            </div>
+                            <input type="text" name="value" class="form-control">
+                        </div>
+                    <input type="submit" value="Buscar" class="btn btn-outline-primary m-2">
+                </form>
+            </div>
+            <!---------------------------TABLE----------------------------->
+            {% if destinos|length == 0%}
+            <div class="alert alert-danger p-3 text-center" role="alert">
+                No hay incidencias, revise su entrada. <a href="/destinations/all" class="alert-link">Volver</a>.
+            </div>
+            {% endif %}
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th scope="col">Distrito</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col">Tipo Categoria</th>
+                    <th scope="col">Subtipo Categoria</th>
+                    <th scope="col">Puntaje</th>
+                    <th scope="col">Calificacion</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for dest in destinos %}
+                    <tr>
+                        <td>{{dest.distrito}}</td>
+                        <td>{{dest.nombre}}</td>
+                        <td>{{dest.categoria}}</td>
+                        <td>{{dest.tipo_categoria}}</td>
+                        <td>{{dest.subtipo_categoria}}</td>
+                        <td>{{dest.calificacion|truncatechars:6}}</td>
+                        <td>
+                            <form action="/destinations/see" method="GET">
+                                <input type="submit" value="Ver">
+                            </form>
+                            <form action="/destinations/all" method="POST">
+                                {% csrf_token %}
+                                <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},1, 'yellow')">★</span>
+                                <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},2, 'yellow')">★</span>
+                                <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},3, 'yellow')">★</span>
+                                <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},4, 'yellow')">★</span>
+                                <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},5, 'yellow')">★</span>
+                                <input type="text" name="codigo" value="{{dest.codigo}}" hidden>
+                                <input type="number" id="puntaje{{dest.codigo}}" name="calificacion" value="0" hidden>
+                                <input type="submit" value="Calificar">
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <script>
+            function calificar(event, codigo , puntaje, color)
+            {
+                let puntajeNuevo = Number.parseInt(puntaje);
+                let estrellas = document.getElementsByClassName("estrella"+codigo);
+                for(let i=0 ; i<puntajeNuevo ; i++)
+                    estrellas[i].style.color=color;
+                for(let i=4 ; i>=puntajeNuevo ; i--)
+                    estrellas[i].style.color="black";
+                input_puntaje = document.getElementById("puntaje"+codigo);
+                input_puntaje.setAttribute('value', puntaje);
+            }
+        </script>
+    </body>
+</html>
