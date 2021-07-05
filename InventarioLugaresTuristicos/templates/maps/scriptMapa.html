@@ -218,7 +218,16 @@
                 if (ubiSitTur[i].latitud != null) {
                     if (ubiSitTur[i].longitud != null) {
                         console.log("entro")
-                        var latlng = [ubiSitTur[i].longitud, ubiSitTur[i].latitud]
+                        var latlng = [ubiSitTur[i].longitud, ubiSitTur[i].latitud];
+                        var region = ubiSitTur[i].region;
+                        var provincia = ubiSitTur[i].provincia;
+                        var distrito = ubiSitTur[i].distrito;
+                        var codigo = ubiSitTur[i].codigo;
+                        var nombre = ubiSitTur[i].nombre;
+                        var categoria = ubiSitTur[i].categoria;
+                        var tipo_categoria = ubiSitTur[i].tipo_categoria;
+                        var subtipo_categoria = ubiSitTur[i].subtipo_categoria;
+                        
                     }
                 }
                 console.log(ubiSitTur[i].distrito + "→ " + nombre + " " + latlng)

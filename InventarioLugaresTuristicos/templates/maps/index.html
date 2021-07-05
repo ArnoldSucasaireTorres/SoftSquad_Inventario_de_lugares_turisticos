@@ -7,6 +7,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ffffff">
+    <!-- https://material.io/resources/icons/?style=baseline -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons"
+      rel="stylesheet">
+    <!-- https://material.io/resources/icons/?style=outline -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Outlined"
+          rel="stylesheet">
+    <!-- https://material.io/resources/icons/?style=round -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round"
+          rel="stylesheet">
+    <!-- https://material.io/resources/icons/?style=sharp -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Sharp"
+          rel="stylesheet">
+    <!-- https://material.io/resources/icons/?style=twotone -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Two+Tone"
+          rel="stylesheet">
     {% include 'maps/librerias.html' %}
     <style>
 :root {
@@ -17803,6 +17818,49 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 -----------------------------------------------*/
 
     </style>
+    <style>
+    .modalContainer {
+			display: none; 
+			position: fixed; 
+			z-index: 1;
+			padding-top: 50px;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%; 
+			overflow: auto; 
+			background-color: rgb(0,0,0);
+			background-color: rgba(0,0,0,0.4);
+		}
+
+		.modalContainer .modal-content {
+			background-color: #fefefe;
+			margin-right: auto;
+      margin-left: 45px;
+			padding: 20px;
+			border: 1px solid lightgray;
+			border-top: 10px solid #3984F3;
+			width: 45%;
+		}
+
+		.modalContainer .close {      
+			color: #aaaaaa;		
+			font-size: 21px;
+			font-weight: bold;
+      text-align:right;      
+		}
+    .modalContainer .closeContainer{
+        width: 30px;
+        height: 20px;
+    }
+
+		.modalContainer .close:hover,
+		.modalContainer .close:focus {
+			color: #000;
+			text-decoration: none;
+			cursor: pointer;
+		}
+    </style>
 
   </head>
   <body>
@@ -17840,11 +17898,35 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         <p class="mt-4 mb-5 fs-1 lh-base">Conoce los mejores y más interesantes lugares de Arequipa:
                             <br class="d-none d-lg-block" />sitios turísticos, información y festividades.
                             <br class="d-none d-lg-block" />Conoce Arequipa.
-                        </p>
+                        </p>                        
+
+                            <div id="tvesModal" class="modalContainer">
+                              <div class="modal-content">                                
+                                  <span class="close">X</span>                                
+                                  <div><h2 style="margin-left:60px;">Templo De San Santiago De Madrigal</h2></div>
+                                  <div>
+                                  <img src="https://turismoi.pe/uploads/photo/photo_file/23492/home_2689_01.JPG" width="450" height="250" style="display: block;
+                                            margin: auto;
+                                            border-radius: 1.5em;">
+                                  </div>
+                                  <div style="margin: 10px 30px;
+                                  ">
+                                    <p style="margin: auto;
+                                              margin-left: 35px;
+                                              margin-right: 20px;"> También con el nombre de Templo de Santiago de Madrigal, es una iglesia católica, que se encuentra localizada en el distrito de Madrigal, en la provincia de Caylloma, en Arequipa.</p>
+                                    <p></p>
+                                  </div>
+                                                                                                 
+
+                              </div>
+                            </div>
                         {% if user.is_authenticated %}
-                        <a class="btn btn-lg btn-primary hover-top" href="#" role="button">Ver ubicaciones</a>
+                        <button class="btn btn-lg btn-primary hover-top" id="btnModal">Ver Ubicaciones</button>
                         {% else %}               
-                        <a class="btn btn-lg btn-primary hover-top" href="{% provider_login_url 'google' %}" role="button">Ingresar con la cuenta de Google</a>                                               
+                        <a class="btn btn-lg btn-primary hover-top" href="{% provider_login_url 'google' %}" role="button">
+                        <div style="float:left;padding-right: 15px;height: 1px;"><i class="material-icons">login</i></div>
+                        
+                        <div style="float:left">Iniciar Sesión con Google</div></a>                                               
                         {% endif%}
                     </div>                    
                     <div class="col-md-5 col-lg-6 text-center text-md-start py-4">
@@ -17906,6 +17988,38 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     </main>
     <!--    JavaScripts-->
     {% include 'maps/scriptMapa.html' %}
+     <script>
+      if(document.getElementById("btnModal")){
+			var modal = document.getElementById("tvesModal");
+			var btn = document.getElementById("btnModal");
+			var span = document.getElementsByClassName("close")[0];
+			var body = document.getElementsByTagName("body")[0];
+
+			btn.onclick = function() {
+				modal.style.display = "block";
+				body.style.position = "static";
+				body.style.height = "100%";
+				body.style.overflow = "hidden";
+			}
+
+			span.onclick = function() {
+				modal.style.display = "none";
+
+				body.style.position = "inherit";
+				body.style.height = "auto";
+				body.style.overflow = "visible";
+			}
+
+			window.onclick = function(event) {
+				if (event.target == modal) {
+					modal.style.display = "none";
+
+					body.style.position = "inherit";
+					body.style.height = "auto";
+					body.style.overflow = "visible";
+				}
+			}}
+    </script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
   
