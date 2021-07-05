@@ -3,7 +3,7 @@ from .models import Destino
 import json
 
 # Lectura del archivo JSON
-archivo_json = open('/home/michael/Descargas/data.json')
+archivo_json = open('data.json')
 data_json = json.load(archivo_json)
 
 
