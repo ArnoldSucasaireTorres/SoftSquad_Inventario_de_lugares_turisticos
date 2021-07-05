@@ -10,7 +10,6 @@
 </head>
 
 <body>
-    {% block head_map %}
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <div style="width:500px; height: 300px; " id="map">
     </div>
@@ -20,9 +19,9 @@
     <input type="text" id="lat">
     <input type="text" id="lon">
     <button id="busqueda" onclick="buscar(this)">buscar</button>
-    {% endblock %}
+
 </body>
-{% block map_script %}
+
 <script>
     var mapaDistritos;
     function buscar(arg) {
@@ -140,7 +139,7 @@
                 'scrollWheelZoom': true
             }).setView([-15.940203, -72.784424], 7); // se establecer la vista del mapa centrado
         //se establece el tipo de capa para el mapa
-        L.tileLayer('https://api.maptiler.com/maps/basic/256/{z}/{x}/{y}.png?key=CRUVM7jh3L0GyKshKy4W', {
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
             maxZoom: 18,
             minZoom: 7,
             attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -196,8 +195,9 @@
                 'scrollWheelZoom': true
             }).setView([-15.940203, -72.784424], 7); // se establecer la vista del mapa centrado
         //se establece el tipo de capa para el mapa
-        L.tileLayer('https://api.maptiler.com/maps/basic/256/{z}/{x}/{y}.png?key=CRUVM7jh3L0GyKshKy4W', {
-            maxZoom: 20,
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            maxZoom: 18,
+            minZoom: 7,
             attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
         }).addTo(map); // se añade la capa al mapa
 
@@ -258,6 +258,4 @@
         }
     }
 </script>
-{% endblock %}
-
 </html>
