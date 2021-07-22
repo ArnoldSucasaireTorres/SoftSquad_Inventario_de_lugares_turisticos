@@ -3,13 +3,13 @@ from django.http import HttpResponse
 # Create your views here.
 
 def myHomeView(request, *args, **kwargs):
-    f = open("provinciasAQP.json",encoding="utf8")
+    f = open("provinciasAQP.json")
     provincias=f.read()
     f.close()
-    f = open("distritosAQP.json",encoding="utf8")
+    f = open("distritosAQP.json")
     distritos=f.read()
     f.close()
-    f = open("data.json", encoding="utf8")
+    f = open("data.json")
     turisticos=f.read()
     f.close()
     return render(request,'maps/index.html',{'provincias':provincias,'distritos':distritos,'turisticos':turisticos})

@@ -3,7 +3,7 @@ from .models import Destino
 import json
 
 # Lectura del archivo JSON
-archivo_json = open('data.json',encoding="utf8")
+archivo_json = open('data.json')
 data_json = json.load(archivo_json)
 
 
@@ -51,7 +51,7 @@ def destinationsView(request):
         destino = Destino.objects.get(codigo_destino=codigo)
         #Verificamos si es que el usuario ya califico el sitio
         if len(destino.usuarios.all().filter(id=request.user.id)) != 0:
-            print("ya califico este sitio")
+            print("Ya califico este sitio")
         else:
             destino.calificacion = destino.calificacion + float(calificacion)
             destino.usuarios.add(request.user)
