@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from .models import Destino
+from django.http import JsonResponse
+
 import json
 
 # Lectura del archivo JSON
 archivo_json = open('data.json')
 data_json = json.load(archivo_json)
-
 
 # Metodo que filtra los datos de acuerdo al campo: field y el valor de este: field_name
 # field: es el campo a filtrar
@@ -13,8 +14,9 @@ data_json = json.load(archivo_json)
 def filter_json_data(field, field_name):
     filtered_data = []
     for index in range(len(data_json)):
-        if data_json[index][field].lower() == field_name:
-            filtered_data.append(data_json[index])
+        if data_json[index][field] != None:
+            if field_name in data_json[index][field].lower():
+                filtered_data.append(data_json[index])
     return filtered_data
 
 # Metodo que registra los destinos una sola vez
@@ -59,28 +61,16 @@ def destinationsView(request):
         datos = destinosCalificados(data_json)
     return render(request, "destinations/all.html", {"destinos": datos})
 
-
-# Vista de los destinos filtrados, se agregan calificaciones
+# Vista para consulta por JSON
 # request: Solicitud con datos del cliente
-def destinationsFilteredView(request):
-    if request.method == 'GET':
-        filter_field = request.GET.get('filter')
-        filter_value = request.GET.get('value')
-        data_filtered = filter_json_data(filter_field.lower(), filter_value.lower())
-        data_filtered = destinosCalificados(data_filtered)
-        return render(request, "destinations/filtered.html", {"destinos": data_filtered})
-    else:
-        data = destinosCalificados(data_json)
-        return render(request, "destinations/all.html", {"destinos": data})
+def destinos_json(request):
+    filter_field = request.GET.get('filter').lower()
+    filter_value = request.GET.get('value').lower()
+    data_filtered = filter_json_data(filter_field, filter_value)
+    data_filtered = destinosCalificados(data_filtered)
+    return JsonResponse(data_filtered, safe=False)
 
-def mapaView(request):
-    f = open("provinciasAQP.json")
-    provincias=f.read()
-    f.close()
-    f = open("distritosAQP.json")
-    distritos=f.read()
-    f.close()
-    f = open("data.json")
-    turisticos=f.read()
-    f.close()
-    return render(request,'maps/base.html',{'provincias':provincias,'distritos':distritos,'turisticos':turisticos})
+def destinoView(request, id):
+    destino = Destino.objects.get(codigo_destino=id)
+    return render(request, 'destinations/see.html', {"destino":destino})
+    

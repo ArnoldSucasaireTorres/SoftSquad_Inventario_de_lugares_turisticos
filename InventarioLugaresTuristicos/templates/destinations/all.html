@@ -3,29 +3,25 @@
     {% include 'maps/head.html' %}
 <body>
     {% include 'maps/navbar.html' %}
-    <div class="container col-12">
-        <div class="h1 text-center p-5">
+    <div class="pt-6 container col-12">
+        <div class="h1 text-center p-4">
             Lista de destinos
         </div>
         <div class="col-5 text-center">
-            <form action="/destinations/filtered" method="GET">
-                <select style="color:rgb(80,80,80)" name="filter" class="form-select form-select-lg mb-3" aria-label="Default select example">
-                    <option value="distrito">Distrito</option>
-                    <option value="nombre">Nombre</option>
-                    <option value="categoria">Categoria</option>
-                    <option value="tipo_categoria">Tipo</option>
-                    <option value="subtipo_categoria">Subtipo</option>
-                </select>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span style="color:white;" class="input-group-text bg-secondary" id="basic-addon1">Nombre</span>
-                    </div>
-                    <input style="color:rgb(80,80,80)" type="text" name="value" class="form-control">
-                </div>
-                <input type="submit" value="Buscar" class="btn btn-outline-primary m-2">
-            </form>
+        <select id="filter_input" style="color:rgb(80,80,80)" name="filter" class="form-select form-select-lg mb-3" aria-label="Default select example">
+            <option value="distrito">Distrito</option>
+            <option value="nombre">Nombre</option>
+            <option value="categoria">Categoria</option>
+            <option value="tipo_categoria">Tipo</option>
+            <option value="subtipo_categoria">Subtipo</option>
+        </select>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span style="color:white;" class="input-group-text bg-secondary" id="basic-addon1">Nombre</span>
+            </div>
+            <input id="value_input" style="color:rgb(80,80,80)" type="text" name="value" class="form-control">
         </div>
-        <!---------------------------TABLE----------------------------->
+        </div>
         <table class="table table-sm">
             <thead>
               <tr>
@@ -38,48 +34,114 @@
                 <th scope="col">Calificacion</th>
               </tr>
             </thead>
-            <tbody>
-            {% for dest in destinos %}
-                <tr>
-                    <td>{{dest.distrito}}</td>
-                    <td>{{dest.nombre}}</td>
-                    <td>{{dest.categoria}}</td>
-                    <td>{{dest.tipo_categoria}}</td>
-                    <td>{{dest.subtipo_categoria}}</td>
-                    <td>{{dest.calificacion|truncatechars:6}}</td>
-                    <td>
-                        <form action="/destinations/see" method="GET">
-                            <input type="submit" value="Ver">
-                        </form>
-                        <form action="/destinations/all" method="POST">
-                            {% csrf_token %}
-                            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},1, 'yellow')">★</span>
-                            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},2, 'yellow')">★</span>
-                            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},3, 'yellow')">★</span>
-                            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},4, 'yellow')">★</span>
-                            <span class="estrella{{dest.codigo}}" onclick="calificar(this, {{dest.codigo}},5, 'yellow')">★</span>
-                            <input type="text" name="codigo" value="{{dest.codigo}}" hidden>
-                            <input type="number" id="puntaje{{dest.codigo}}" name="calificacion" value="0" hidden>
-                            <input type="submit" value="Calificar">
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
+            <tbody id="table_body">
             </tbody>
         </table>
     </div>
+    <div class="col-12 text-center" id="q_counter">
+    </div>
+    {% include 'maps/footer.html' %}
     <script>
-        var destinos_data;
-        function calificar(event, codigo , puntaje, color)
+        function cargarDatos()
         {
-            let puntajeNuevo = Number.parseInt(puntaje);
-            let estrellas = document.getElementsByClassName("estrella"+codigo);
-            for(let i=0 ; i<puntajeNuevo ; i++)
-                estrellas[i].style.color=color;
-            for(let i=4 ; i>=puntajeNuevo ; i--)
-                estrellas[i].style.color="black";
-            input_puntaje = document.getElementById("puntaje"+codigo);
-            input_puntaje.setAttribute('value', puntaje);
+            $.ajax({
+                url: '/destinations/ajaxQuery',
+                data: {
+                    'filter': $("#filter_input").val(),
+                    'value': $("#value_input").val()
+                },
+                dataType: 'json',
+                success: function (data) 
+                {   
+                    $("#table_body").empty();
+                    let counter = 0;
+                    for(let i=0 ; i<data.length && i<30 ; i++)
+                    {
+                        counter++;
+                        $("#table_body").append(
+                            $('<tr/>')
+                            .append($("<td/>").text(data[i].distrito))
+                            .append($("<td/>").text(data[i].nombre))
+                            .append($("<td/>").text(data[i].categoria))
+                            .append($("<td/>").text(data[i].tipo_categoria))
+                            .append($("<td/>").text(data[i].subtipo_categoria))
+                            .append($("<td/>").text(parseFloat(data[i].calificacion).toFixed()))
+                            .append($("<td/>")
+                                .append($("<button/>")
+                                    .text("Ver")
+                                    .attr("class","btn btn-lg btn-primary hover-top")
+                                    .attr("id", "btnModal")
+                                    .click(verDestino(data[i].codigo))
+                                )
+                            )
+                        );
+                    }
+                    $("#q_counter").empty();
+                    if(data.length != 0)
+                    {
+                        if(data.length > 30)
+                            $("#q_counter").text("Mostrando "+counter+" de "+data.length+" resultados");
+                        else
+                            $("#q_counter").text("Mostrando "+counter+" resultado(s)");
+                    }
+                    else
+                    {
+                        $("#q_counter").append($("<div/>")
+                            .attr("class" , "alert alert-warning")
+                            .attr("role", "alert")
+                            .text("No se han encontrado coincidencias")
+                        );
+                    }
+                }
+            });
+        }
+        $("#value_input").keyup(function () {if($("#value_input").val().length >= 2)cargarDatos();});
+        $("#filter_input").click(function() {if($("#value_input").val().length >= 2)cargarDatos();});
+        document.addEventListener("DOMContentLoaded", function(){cargarDatos();});
+    </script>
+    <div id="tvesModal" class="modalContainer">
+        <div class="modal-content">                                
+            <span class="close">X</span>                                
+            <div><h2 style="margin-left:60px;">Templo De San Santiago De Madrigal</h2></div>
+            <div>
+                <img src="https://turismoi.pe/uploads/photo/photo_file/23492/home_2689_01.JPG" width="450" height="250" style="display: block;margin: auto;border-radius: 1.5em;">
+            </div>
+            <div style="margin: 10px 30px;">
+            <p style="margin: auto; margin-left: 35px; margin-right: 20px;"> También con el nombre de Templo de Santiago de Madrigal, es una iglesia católica, que se encuentra localizada en el distrito de Madrigal, en la provincia de Caylloma, en Arequipa.</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function verDestino(codigoDestino)
+        {
+            console.log(codigoDestino);
+            var modal = document.getElementById("tvesModal");
+            var btn = document.getElementById("btnModal");
+            var span = document.getElementsByClassName("close")[0];
+            var body = document.getElementsByTagName("body")[0];
+            
+            /*btn.onclick = function() 
+            {
+                modal.style.display = "block";
+                body.style.position = "static";	body.style.height = "100%";
+                body.style.overflow = "hidden";
+            }
+            span.onclick = function() 
+            {
+                modal.style.display = "none";
+                body.style.position = "inherit";
+                body.style.height = "auto";
+                body.style.overflow = "visible";
+            }
+            */
+            window.onclick = function(event) 
+            {
+                if (event.target == modal) 
+                {
+                    modal.style.display = "none";body.style.position = "inherit";
+                    body.style.height = "auto";body.style.overflow = "visible";
+                }
+            }
         }
     </script>
 </body>
