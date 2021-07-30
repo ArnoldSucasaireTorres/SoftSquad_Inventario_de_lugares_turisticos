@@ -19,7 +19,7 @@
             <option value="subtipo_categoria">Subtipo</option>
         </select>
         <div class="input-group mb-3">
-            <input id="value_input" style="color:rgb(80,80,80)" type="text" name="value" class="form-control">
+            <input id="value_input" style="color:rgb(80,80,80)" type="text" name="value" class="form-control" autocomplete="off">
         </div>
         </div>
         <table class="table table-sm">
@@ -160,20 +160,34 @@
                     .append($("<br/>"))
                     
                     .append($("<hr/>"))
-
-                    .append($("<span/>").attr("class", "lead text-dark").text("Calificacion: "))
-                    .append($("<span/>").attr("class","text-secondary").text(calificacion.toFixed(2)))
+                    .append($("<div/>")
+                        .attr("class", "d-inline float-left")
+                        .append($("<span/>").attr("class", "lead text-dark").text("Calificacion: "))
+                        .append($("<span/>").attr("class","text-secondary").attr("id","valorCalificacion").text(calificacion.toFixed(2))))
                     .append($("<div/>")
                         .attr("id", "calificacion")
                         .attr("data-calificacion", data.calificacion)
-                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star").attr("data-puntos", "1").click(calificar))
-                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star").attr("data-puntos", "2").click(calificar))
-                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star").attr("data-puntos", "3").click(calificar))
-                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star").attr("data-puntos", "4").click(calificar))
-                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star").attr("data-puntos", "5").click(calificar))
-                        )
-                    .append($("<a/>").attr("class", "btn btn-primary").text("Calificar").css("margin-left","30%"))
-
+                        .attr("class", "float-right")
+                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star-empty").attr("data-puntos", "1").attr("style","color:#FFFF00").click(calificar))
+                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star-empty").attr("data-puntos", "2").attr("style","color:#FFFF00").click(calificar))
+                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star-empty").attr("data-puntos", "3").attr("style","color:#FFFF00").click(calificar))
+                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star-empty").attr("data-puntos", "4").attr("style","color:#FFFF00").click(calificar))
+                        .append($("<span/>").attr("class", "estrella glyphicon glyphicon-star-empty").attr("data-puntos", "5").attr("style","color:#FFFF00").click(calificar))
+                        .append($("<br/>"))
+                        .append($("<a/>")
+                            .attr("class", "btn btn-primary")
+                            .text("Calificar")
+                            .attr("data-codigo", codigo)
+                            .click(enviarCalificacion))
+                    )
+                    let estrellas = document.getElementsByClassName("estrella");
+                    for(let i=0 ; i<estrellas.length ; i++)
+                    {
+                        if(i < calificacion)
+                            estrellas[i].className = "estrella glyphicon glyphicon-star";
+                        else
+                            estrellas[i].className = "estrella glyphicon glyphicon-star-empty";
+                    }
                 }
             });
         }
@@ -197,10 +211,12 @@
                 $("#modalImage").attr("src", "https://cdn.dribbble.com/users/1186261/screenshots/3718681/_______.gif");
             }
         }
+        
+        let calificacion = 0;
         function calificar()
         {
-            let calificacion = Number.parseInt(this.dataset.puntos);
             let estrellas = document.getElementsByClassName("estrella");
+            calificacion = Number.parseInt(this.dataset.puntos);
             for(let i=0 ; i<estrellas.length ; i++)
             {
                 if(i < calificacion)
@@ -209,6 +225,26 @@
                     estrellas[i].className = "estrella glyphicon glyphicon-star-empty";
             }
         }
+        function enviarCalificacion()
+        {
+            let codigo = Number.parseInt(this.dataset.codigo);
+            $.ajax(
+            {
+                type:"POST",
+                url: '/destinations/calificate/'+codigo+"/",
+                data: 
+                {
+                    'calificacion':calificacion,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                dataType: 'json',
+                success: function (data) 
+                {
+                    $("#valorCalificacion").text(data.calificacion.toFixed(2));
+                }
+            });
+        }
+
     </script>
 </body>
 </html>

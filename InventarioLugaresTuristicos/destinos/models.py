@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 # usuarios: Almacena los usuarios que ya calificaron este destino
 class Destino(models.Model):
     codigo_destino = models.IntegerField()
-    calificacion = models.FloatField()
-    usuarios = models.ManyToManyField(User)
+    calificacion = models.FloatField(default=0)
+    usuarios = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return str(self.codigo_destino)
