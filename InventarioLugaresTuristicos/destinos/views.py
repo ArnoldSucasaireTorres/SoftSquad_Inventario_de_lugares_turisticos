@@ -15,7 +15,7 @@ def filter_json_data(field, field_name):
     filtered_data = []
     for index in range(len(data_json)):
         if data_json[index][field] != None:
-            if field_name in data_json[index][field].lower():
+            if field_name in str(data_json[index][field]).lower():
                 filtered_data.append(data_json[index])
     return filtered_data
 
@@ -71,6 +71,7 @@ def destinos_json(request):
     return JsonResponse(data_filtered, safe=False)
 
 def destinoView(request, id):
-    destino = Destino.objects.get(codigo_destino=id)
-    return render(request, 'destinations/see.html', {"destino":destino})
+    destino = filter_json_data('codigo', id)
+    destino = destinosCalificados(destino)
+    return JsonResponse(destino[0] , safe=False)
     
