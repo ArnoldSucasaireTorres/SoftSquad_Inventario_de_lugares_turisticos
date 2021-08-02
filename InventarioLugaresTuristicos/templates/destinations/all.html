@@ -179,6 +179,14 @@
                             .text("Calificar")
                             .attr("data-codigo", codigo)
                             .click(enviarCalificacion))
+                        .append($("<a/>")
+                            .attr("class", "btn btn-primary")
+                            .attr("data-codigo", codigo)
+                            .text("Ver restaurantes cercanos")
+                            .click(consultarRestaurantes))
+                        .append($("<div/>")
+                            .attr("id", "restaurant-div")
+                            .attr("class", "ml-auto p-2"))
                     )
                     let estrellas = document.getElementsByClassName("estrella");
                     for(let i=0 ; i<estrellas.length ; i++)
@@ -244,7 +252,65 @@
                 }
             });
         }
-
+        function consultarRestaurantes()
+        {
+            let codigo = Number.parseInt(this.dataset.codigo);
+            $.ajax(
+            {
+                url: '/destinations/restaurants/'+codigo+"/",
+                data: 
+                {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                dataType: 'json',
+                success: function (data) 
+                {
+                    $("#restaurant-div").empty()
+                    if(data.length == 0)
+                    {
+                        $("#restaurant-div")
+                        .append($("<div/>")
+                        .text("Ningun restaurante cercano"))
+                    }
+                    else
+                    {
+                        $("#restaurant-div")
+                        .append($("<div/>")
+                        .text("Lista de restaurantes:"))
+                        .append($("<table/>")
+                        .attr("class", "table table-bordered text-center")
+                            .append($("<tr/>")
+                                .append($("<td/>")
+                                    .attr("class", "bg-primary text-light")
+                                    .text("Nombre"))
+                                .append($("<td/>")
+                                    .attr("class", "bg-primary text-light")
+                                    .text("Descripcion")))
+                            .append($("<tr/>")
+                                .append($("<td/>")
+                                    .attr("class", "bg-primary text-light")
+                                    .text(data[0].nombre))
+                                .append($("<td/>")
+                                    .attr("clas", "bg-info")
+                                    .text(data[0].descripcion)))
+                            .append($("<tr/>")
+                                .append($("<td/>")
+                                    .attr("class", "bg-primary text-light")
+                                    .text(data[1].nombre))
+                                .append($("<td/>")
+                                    .attr("clas", "bg-info")
+                                    .text(data[1].descripcion)))
+                            .append($("<tr/>")
+                                .append($("<td/>")
+                                    .attr("class", "bg-primary text-light")
+                                    .text(data[2].nombre))
+                                .append($("<td/>")
+                                    .attr("clas", "bg-info")
+                                    .text(data[2].descripcion))))
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>

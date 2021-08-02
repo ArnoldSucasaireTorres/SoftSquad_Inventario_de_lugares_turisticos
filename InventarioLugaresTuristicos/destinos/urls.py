@@ -6,5 +6,6 @@ urlpatterns = [
 
     path('ajaxQuery', jsonQuerys.filtrarDestinos, name='filtered'),
     path('see/<id>/', jsonQuerys.consultarDetino, name="seeDestination"),
-    path('calificate/<id>/', jsonQuerys.calificarDestino, name="seeDestination")
+    path('calificate/<id>/', jsonQuerys.calificarDestino, name="seeDestination"),
+    path('restaurants/<id>/', jsonQuerys.consultarRestaurantes, name="seeRetaurants")
 ]
