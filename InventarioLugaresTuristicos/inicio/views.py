@@ -12,4 +12,7 @@ def myHomeView(request, *args, **kwargs):
     f = open("data.json")
     turisticos=f.read()
     f.close()
-    return render(request,'maps/index.html',{'provincias':provincias,'distritos':distritos,'turisticos':turisticos})
+    f = open("restaurantes.json")
+    restaurantes=f.read()
+    f.close()
+    return render(request,'maps/index.html',{'provincias':provincias,'distritos':distritos,'turisticos':turisticos,'restaurantes':restaurantes})

@@ -1,10 +1,6 @@
 <script>
     var mapaDistritos;
-    function buscar(arg) {
-        var lat = document.getElementById("lat")
-        var lon = document.getElementById("lon")
 
-    }
     //Cuando se carga el documento se ejecuta la funcion
     $(document).ready(function () {
         dibujarProvincias()
@@ -13,27 +9,37 @@
     var pila = [];
     var pila1 = [];
     listaProvincias = ['AREQUIPA', 'CAMANA', 'CARAVELI', 'CASTILLA', 'CAYLLOMA', 'CONDESUYOS', 'ISLAY', 'LA UNION']
+    document.getElementById("atras").onclick = function () {
+
+        document.getElementById("distritos").style.display = "none";
+        document.getElementById("map").style.display = "block";
+        document.getElementById("atras").style.display = "none";
+
+        document.getElementById("restaurantes").style.display = "none";
+    }
     var click = function (event) {
+        var id = event.originalEvent.path[5].id;
         var nombre = event.target._popup._content;
-        var esprovincia = false;
-        for (var i = 0; i < listaProvincias.length; i++) {
-            if (nombre == listaProvincias[i]) {
-                esprovincia = true;
-                if (document.getElementById("distritos").innerHTML) {
-                    mapa.remove()
-                    break;
-                }
+        var esprovincia = id == "map" ? true : false;
+        if (esprovincia) {
+            if (document.getElementById("distritos").innerHTML) {
+                mapa.remove()
             }
         }
+
         //se verifica el lugar seleccionado es provincia o distrito
         if (esprovincia) {
+            document.getElementById("distritos").style.display = "block";
+            document.getElementById("map").style.display = "none";
+            document.getElementById("atras").style.display = "block";
+            document.getElementById("restaurantes").style.display = "block";
             mapa = dibujarDistritos("distritos", nombre)
         }
         else {
             sitiosTuristicos(nombre)
         }
 
-        document.getElementById("nombreprovincia").innerHTML = nombre;
+        //document.getElementById("nombreprovincia").innerHTML = nombre;
 
         if (pila.length == 0) {
             event.target.setStyle(
@@ -142,7 +148,7 @@
 
             polygon = L.polygon(
                 provAQP[i].geometry.coordinates[0], //latlngs de arequipa
-                estilos).bindPopup(nomProvAQP).addTo(map);
+                estilos).bindPopup(nomProvAQP, { autoPan: false }).addTo(map);
 
             //se añade eventos sobre el poligono
             polygon.on('click', click);
@@ -173,6 +179,7 @@
         //se establece el tipo de capa para el mapa
         L.tileLayer('https://api.maptiler.com/maps/basic/256/{z}/{x}/{y}.png?key=CRUVM7jh3L0GyKshKy4W', {
             maxZoom: 20,
+            minZoom: 7,
             attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
         }).addTo(map); // se añade la capa al mapa
 
@@ -198,7 +205,7 @@
                 provAQP[i].geometry.coordinates[0].forEach(e => e.reverse());
                 polygon = L.polygon(
                     provAQP[i].geometry.coordinates[0], //latlngs de arequipa
-                    estilos).bindPopup(nomDist).addTo(map);
+                    estilos).bindPopup(nomDist, { autoPan: false }).addTo(map);
 
                 //se añade eventos sobre el poligono
                 polygon.on('click', click);
@@ -211,34 +218,141 @@
         return map;
     }
     var sitiosTuristicos = function (nombre) {
-        var ubiSitTur = mygeojson = JSON.parse(`{{turisticos}}`.replace(/&quot;/g, '"'));
-        //console.log(nombre)
+
+        var ubiSitTur = JSON.parse(`{{turisticos}}`.replace(/&quot;/g, '"'));
+
+        //console.log(ubiSitTur)
         for (var i = 0; i < ubiSitTur.length; i++) {
-            if (ubiSitTur[i].distrito == nombre) {
+            //console.log(ubiSitTur[i].distrito)
+            if (ubiSitTur[i].distrito.toLowerCase() == nombre.toLowerCase()) {
                 if (ubiSitTur[i].latitud != null) {
                     if (ubiSitTur[i].longitud != null) {
-                        console.log("entro")
+
                         var latlng = [ubiSitTur[i].longitud, ubiSitTur[i].latitud];
                         var region = ubiSitTur[i].region;
                         var provincia = ubiSitTur[i].provincia;
                         var distrito = ubiSitTur[i].distrito;
                         var codigo = ubiSitTur[i].codigo;
-                        var nombre = ubiSitTur[i].nombre;
+                        var nombren = ubiSitTur[i].nombre;
                         var categoria = ubiSitTur[i].categoria;
                         var tipo_categoria = ubiSitTur[i].tipo_categoria;
                         var subtipo_categoria = ubiSitTur[i].subtipo_categoria;
-                        
+
                     }
                 }
-                console.log(ubiSitTur[i].distrito + "→ " + nombre + " " + latlng)
-                L.marker(latlng).addTo(mapaDistritos)
-                    .bindPopup(latlng + "")
-                    .openPopup();
+                //console.log(ubiSitTur[i].distrito + "→ " + nombre + " " + latlng)
+                var greenIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/gersondani2001-prog/IconosGoogle/master/maps/2x_web/ic_place_black_24dp.png',
+                    shadowUrl: 'https://gist.githubusercontent.com/sigdeletras/b61d7aed65a7af157bca55527b0dbec0/raw/153ce57daef6a58a9e9c9698a3af23e661c300c5/icon-green50_sombra.png',
+
+                    iconSize: [38, 38], // size of the icon
+                    shadowSize: [34, 34], // size of the shadow
+                    iconAnchor: [17, 40], // point of the icon which will correspond to marker's location
+                    shadowAnchor: [7, 35],  // the same for the shadow
+                    popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
+                });
+                L.marker(latlng, { icon: greenIcon }).addTo(mapaDistritos).on('click', muestraModalDistrito)
+                //L.marker(latlng).addTo(mapaDistritos)
+                //.bindPopup(latlng + "")
+                //.openPopup();
             }
 
 
             //console.log(latlng)
             //L.marker(latlng).addTo(mapaDistritos);
         }
+        function muestraModalDistrito(e) {
+            var modal = document.getElementById("tvesModal");
+            var btn = document.getElementById("btnModal");
+            var span = document.getElementsByClassName("close")[0];
+            var body = document.getElementsByTagName("body")[0];
+            modal.style.display = "block"; body.style.position = "static"; body.style.height = "100%"; body.style.overflow = "hidden";
+            span.onclick = function () { modal.style.display = "none"; body.style.position = "inherit"; body.style.height = "auto"; body.style.overflow = "visible"; }
+            window.onclick = function (event) {
+                if (event.target == modal) { modal.style.display = "none"; body.style.position = "inherit"; body.style.height = "auto"; body.style.overflow = "visible"; }
+            }
+            var lng = e.latlng.lat;
+            var lat = e.latlng.lng;
+            var datos = {};
+            for (var i = 0; i < ubiSitTur.length; i++) {
+                if (ubiSitTur[i].latitud == lat) {
+                    if (ubiSitTur[i].longitud == lng) {
+                        datos.latlng = [ubiSitTur[i].longitud, ubiSitTur[i].latitud];
+                        datos.region = ubiSitTur[i].region;
+                        datos.provincia = ubiSitTur[i].provincia;
+                        datos.distrito = ubiSitTur[i].distrito;
+                        datos.codigo = ubiSitTur[i].codigo;
+                        datos.nombren = ubiSitTur[i].nombre;
+                        datos.categoria = ubiSitTur[i].categoria;
+                        datos.tipo_categoria = ubiSitTur[i].tipo_categoria;
+                        datos.subtipo_categoria = ubiSitTur[i].subtipo_categoria;
+                        datos.url = ubiSitTur[i].url;
+                    }
+                }
+            }
+            document.getElementById("nombre").innerHTML = datos.nombren;
+            document.getElementById("imagen").src = datos.url;
+            document.getElementById("datos").innerHTML = "<hr><table><tr><td><b>Provincia:</b></td><td>" + datos.provincia + "</td></tr>"
+                + "<tr><td><b>Distrito:</b></td><td>" + datos.distrito + "</td></tr>"
+                + "<tr><td><b>Categoria:</b></td><td>" + datos.categoria + "</td></tr>"
+                + "<tr><td><b>Tipo de Categoria:</b></td><td>" + datos.tipo_categoria + "</td></tr>"
+                + "<tr><td><b>Sub Tipo de Categoria:</b></td><td>" + datos.subtipo_categoria + "</td></tr><table><hr>"
+
+        }
     }
+    document.getElementById("restaurantes").onclick = function () {
+
+        var ubiRestTur = mygeojson = JSON.parse(`{{restaurantes}}`.replace(/&quot;/g, '"'));
+
+        for (var i = 0; i < ubiRestTur.length; i++) {
+            //console.log(ubiSitTur[i].distrito)
+            var latlng = [ubiRestTur[i].longitud, ubiRestTur[i].latitud];
+            var greenIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/gersondani2001-prog/IconosGoogle/master/maps/2x_web/ic_restaurant_black_24dp.png',
+
+                iconSize: [38, 38], // size of the icon
+                iconAnchor: [17, 40], // point of the icon which will correspond to marker's location
+                popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
+            });
+            L.marker(latlng, { icon: greenIcon }).addTo(mapaDistritos).on('click', muestraModalRestaurante)
+
+            function muestraModalRestaurante(e) {
+                var modal = document.getElementById("tvesModal");
+                var btn = document.getElementById("btnModal");
+                var span = document.getElementsByClassName("close")[0];
+                var body = document.getElementsByTagName("body")[0];
+                modal.style.display = "block"; body.style.position = "static"; body.style.height = "100%"; body.style.overflow = "hidden";
+                span.onclick = function () { modal.style.display = "none"; body.style.position = "inherit"; body.style.height = "auto"; body.style.overflow = "visible"; }
+                window.onclick = function (event) {
+                    if (event.target == modal) { modal.style.display = "none"; body.style.position = "inherit"; body.style.height = "auto"; body.style.overflow = "visible"; }
+                }
+                var lng = e.latlng.lat;
+                var lat = e.latlng.lng;
+                var datos = {};
+                for (var i = 0; i < ubiRestTur.length; i++) {
+                    if (ubiRestTur[i].latitud == lat) {
+                        if (ubiRestTur[i].longitud == lng) {
+                            datos.latlng = [ubiRestTur[i].longitud, ubiRestTur[i].latitud];
+                            datos.provincia = ubiRestTur[i].provincia;
+                            datos.descripcion = ubiRestTur[i].descripcion;
+                            datos.nombren = ubiRestTur[i].nombre;
+                            datos.telefono = ubiRestTur[i].telefono;
+                            datos.pagina = ubiRestTur[i].pagina;
+                            datos.url=ubiRestTur[i].url;
+                        }
+                    }
+                }
+                document.getElementById("nombre").innerHTML = datos.nombren;
+                document.getElementById("imagen").src = datos.url;
+                document.getElementById("datos").innerHTML = "<hr><table><tr><td><b>Provincia:</b></td><td>" + datos.provincia + "</td></tr>"
+                    + "<tr><td><b>Descripcion:</b></td><td>" + datos.descripcion + "</td></tr>"
+                    + "<tr><td><b>telefono:</b></td><td>" + datos.telefono + "</td></tr>"
+                    + "<tr><td><b>pagina:</b></td><td><a href='" + datos.pagina + "'>"+datos.pagina+"</a></td></tr><table><hr>";
+
+            }
+
+        }
+
+    }
+    
 </script>

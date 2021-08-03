@@ -3,41 +3,59 @@
 {% load socialaccount %}
 <html lang="en-US" dir="ltr">
 {% include 'maps/head.html' %}
+
 <body>
     <main class="main" id="top">
         {% include 'maps/navbar.html'%}
         <section class="py-0">
-            <div class="bg-holder d-none d-md-block" style="background-image:url(assets/img/illustrations/hero.png);background-position:right bottom;background-size:contain;"></div>
+            <div class="bg-holder d-none d-md-block"
+                style="background-image:url(assets/img/illustrations/hero.png);background-position:right bottom;background-size:contain;">
+            </div>
             <div class="container position-relative">
                 <div class="row align-items-center min-vh-75 my-lg-8">
                     <div class="col-md-7 col-lg-6 text-center text-md-start py-8">
-                        <h1 class="mb-4 display-1 lh-sm">Conoce nuestra<br class="d-block d-lg-none d-xl-block" />Arequipa</h1>
+                        <h1 class="mb-4 display-1 lh-sm">Conoce nuestra<br
+                                class="d-block d-lg-none d-xl-block" />Arequipa</h1>
                         <p class="mt-4 mb-5 fs-1 lh-base">Conoce los mejores y más interesantes lugares de Arequipa:
                             <br class="d-none d-lg-block" />sitios turísticos, información y festividades.
                             <br class="d-none d-lg-block" />Conoce Arequipa.
                         </p>
                         <div id="tvesModal" class="modalContainer">
-                            <div class="modal-content">                                
-                                <span class="close">X</span>                                
-                                <div><h2 style="margin-left:60px;">Templo De San Santiago De Madrigal</h2></div>
+                            <div class="modal-content">
+                                <span class="close">X</span>
                                 <div>
-                                    <img src="https://turismoi.pe/uploads/photo/photo_file/23492/home_2689_01.JPG" width="450" height="250" style="display: block;margin: auto;border-radius: 1.5em;">
+                                    <h2 style="margin-left:60px;" id="nombre">Templo De San Santiago De Madrigal</h2>
+                                </div>
+                                <div>
+                                    <img src="https://turismoi.pe/uploads/photo/photo_file/23492/home_2689_01.JPG"
+                                        width="450" height="250"
+                                        style="display: block;margin: auto;border-radius: 1.5em;"
+                                        id="imagen">
                                 </div>
                                 <div style="margin: 10px 30px;">
-                                <p style="margin: auto; margin-left: 35px; margin-right: 20px;"> También con el nombre de Templo de Santiago de Madrigal, es una iglesia católica, que se encuentra localizada en el distrito de Madrigal, en la provincia de Caylloma, en Arequipa.</p>
+                                    <p id="datos"></p>
+                                    <!--
+                                    <p id="provincia"></p>
+                                    <p id="distrito"></p>
+                                    <p id="categoria"></p>
+                                    <p id="tipo_categoria"></p>
+                                    <p id="subtipo_categoria"></p>-->
                                 </div>
                             </div>
                         </div>
                         {% if user.is_authenticated %}
-                        <button class="btn btn-lg btn-primary hover-top" id="btnModal">Ver Ubicaciones</button>
-                        {% else %}               
-                        <a class="btn btn-lg btn-primary hover-top" href="{% provider_login_url 'google' %}" role="button">
-                            <div style="float:left;padding-right: 15px;height: 1px;"><i class="material-icons">login</i></div>
+                        <!--<button class="btn btn-lg btn-primary hover-top" id="btnModal">Ver Ubicaciones</button>-->
+                        {% else %}
+                        <a class="btn btn-lg btn-primary hover-top" href="{% provider_login_url 'google' %}"
+                            role="button">
+                            <div style="float:left;padding-right: 15px;height: 1px;"><i class="material-icons">login</i>
+                            </div>
                             <div style="float:left">Iniciar Sesión con Google</div>
-                        </a>                                               
+                        </a>
                         {% endif%}
-                    </div>                    
+                    </div>
                     <div class="col-md-5 col-lg-6 text-center text-md-start py-4">
+
                         {% include 'maps/cuerpoMapa.html' %}
                     </div>
                 </div>
@@ -48,17 +66,23 @@
     <!--    JavaScripts-->
     {% include 'maps/scriptMapa.html' %}
     <script>
-        if(document.getElementById("btnModal")){
-        var modal = document.getElementById("tvesModal");
-        var btn = document.getElementById("btnModal");
-        var span = document.getElementsByClassName("close")[0];
-        var body = document.getElementsByTagName("body")[0];
-        btn.onclick = function() {modal.style.display = "block";	body.style.position = "static";	body.style.height = "100%";body.style.overflow = "hidden";}
-        span.onclick = function() {modal.style.display = "none"; body.style.position = "inherit"; body.style.height = "auto"; body.style.overflow = "visible";}
-        window.onclick = function(event) {
-        if (event.target == modal) {modal.style.display = "none";body.style.position = "inherit";body.style.height = "auto";body.style.overflow = "visible";}}}
+        /*
+        if (document.getElementById("btnModal")) {
+            var modal = document.getElementById("tvesModal");
+            var btn = document.getElementById("btnModal");
+            var span = document.getElementsByClassName("close")[0];
+            var body = document.getElementsByTagName("body")[0];
+            btn.onclick = function () { modal.style.display = "block"; body.style.position = "static"; body.style.height = "100%"; body.style.overflow = "hidden"; }
+            span.onclick = function () { modal.style.display = "none"; body.style.position = "inherit"; body.style.height = "auto"; body.style.overflow = "visible"; }
+            window.onclick = function (event) {
+                if (event.target == modal) { modal.style.display = "none"; body.style.position = "inherit"; body.style.height = "auto"; body.style.overflow = "visible"; }
+            }
+        }
+        */
     </script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
-    </body>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;600;700;800;900&amp;display=swap"
+        rel="stylesheet">
+</body>
+
 </html>

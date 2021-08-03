@@ -59,3 +59,4 @@ def consultarRestaurantes(request, id):
         if rest['provincia'] == provincia:
             restaurantes.append(rest)
     return JsonResponse(restaurantes, safe=False)
+
